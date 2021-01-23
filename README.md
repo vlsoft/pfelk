@@ -1,187 +1,99 @@
-## Welcome to (pfSense/OPNsense) + Elastic Stack 
+![Version badge](https://img.shields.io/badge/ELK-7.10.1-blue.svg)
+[![Gitter](https://badges.gitter.im/pfelk/community.svg)](https://gitter.im/pfelk/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/a3ilson)
 
-![pfelk dashboard](https://github.com/a3ilson/pfelk/raw/master/pf%2BELK.png)
-You can view installation guide guide on [3ilson.org YouTube Channel](https://www.youtube.com/3ilsonorg).
+[![Star](https://img.shields.io/github/stars/pfelk/pfelk?style=plastic)](https://github.com/pfelk/pfelk/stargazers) 
+[![Fork](https://img.shields.io/github/forks/pfelk/pfelk?style=plastic)](https://github.com/pfelk/pfelk/network/members)
+[![Issues](https://img.shields.io/github/issues/pfelk/pfelk?style=plastic)](https://github.com/pfelk/pfelk/issues)
 
+[![YouTube](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/3ilson)
+## Welcome to (pfSense/OPNsense) + Elastic Stack  
+![pfelk dashboard](https://raw.githubusercontent.com/pfelk/pfelk/master/Images/Dashboard%20-%20v61.gif)
 
 ### Prerequisites
-- Ubuntu Server v18.04+
+- Ubuntu Server v18.04+ or Debian Server 9+ (stretch and buster are tested)
 - pfSense v2.4.4+ or OPNsense 19.7.4+
-- The following was tested with Java v12 and Elastic Stack v7.4
+- The following was tested with Java v11 LTS and Elastic Stack v7.10.1
+- Minimum of 4GB of RAM but recommend 32GB
 
-# Preparation
+**pfelk** is a highly customizable **open-source** tool for ingesting and visualizing your firewall traffic with the full power of Elasticsearch, Logstash and Kibana.
 
-### 1. Add Oracle Java Repository
-```
-sudo add-apt-repository ppa:linuxuprising/java
-```
+### Key features:
 
-### 2. Add Maxmind Repository
-```
-sudo add-apt-repository ppa:maxmind/ppa
-```
+1. **ingest** and **enrich** your pfSense/OPNsense **firewall traffic** logs by leveraging *Logstash*
 
-### 3. Download and install the public GPG signing key
-```
-wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
-```
+2. **search** your indexed data in *near-real-time* with the full power of the *Elasticsearch*
 
-### 4. Download and install apt-transport-https package
-```
-sudo apt-get install apt-transport-https
-```
+3. **visualize** you network traffic with interactive dashboards, Maps, graphs in *Kibana*
 
-### 5. Add Elasticsearch|Logstash|Kibana Repositories (version 7+)
-```
-echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-7.x.list
-```
+Supported entries include:
+ - pfSense/OPNSense setups
+ - TCP/UDP/ICMP protocols
+ - DHCP message types with dashboard (dhcpdv4)
+ - IPv4/IPv6 mapping
+ - pfSense CARP data
+ - openVPN log parsing
+ - Unbound DNS Resolver with dashboard
+ - Suricata IDS with dashboard
+ - Snort IDS with dashboard
+ - Squid with dashboard
+ - HAProxy with dashboard
+ - Captive Portal with dashboard
 
-### 6. Update
-```
-sudo apt-get update
-```
+**pfelk** aims to replace the vanilla pfSense/OPNsense web UI with extended search and visualization features. You can deploy this solution via **ansible-playbook**, **docker-compose**, **bash script**, or manually.
 
-### 7. Install Java 13
-```
-sudo apt-get install oracle-java13-installer
-```
+### Contents
+* [How pfelk works?](https://github.com/pfelk/pfelk#how-pfelk-works)
+* [Installation](https://github.com/pfelk/pfelk#installation)
+  * [ansible](https://github.com/pfelk/pfelk#ansible-playbook)
+  * [docker](https://github.com/pfelk/pfelk#docker-compose)
+  * [manual installation/script](https://github.com/pfelk/pfelk#manual-installationscript---preferred-manual-method)
+* [Roadmap](https://github.com/pfelk/pfelk#roadmap)
+* [Comparison to similar solutions](https://github.com/pfelk/pfelk#comparison-to-similar-solutions)
+* [Contributing](https://github.com/pfelk/pfelk#contributing)
+* [License](https://github.com/pfelk/pfelk#license)
 
-### 8. Install Maxmind
-```
-sudo apt install geoipupdate
-```
+### How pfelk works?
+* ![How pfelk works](https://github.com/pfelk/pfelk/raw/master/Images/pfELK-Overview.PNG)
 
-### 9. Configure Maxmind
-```
-sudo nano /etc/GeoIP.conf
-```
-- Append line 25 as follows:
-```
-EditionIDs GeoLite2-City GeoLite2-Country GeoLite2-ASN
-```
+### Quick start
 
-### 8. Download Maxmind Databases
-```
-sudo geoipupdate
-```
+### Installation
+#### ansible-playbook
+ * Clone the [ansible-pfelk](https://github.com/pfelk/ansible-pfelk) repository
+ * `$ ansible-playbook -i hosts --ask-become deploy-stack.yml`
 
-### 9. Add cron (automatically updates Maxmind everyweek on Sunday at 1700hrs)
-```
-sudo nano /etc/cron.weekly/geoipupdate
-```
-- Add the following and save/exit
-```
-00 17 * * 0 geoipupdate
-```
+#### docker-compose
+ * Clone the [docker-pfelk](https://github.com/pfelk/docker-pfelk) repository
+ * Setup MaxMind
+ * `$ docker-compose up`
+ * [![YouTube](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/watch?v=MJVbLvdVtyY) Guide
 
-# Install
-- Elasticsearch v7+ | Kibana v7+ | Logstash v7+
+#### script installation method
+* Download installer script from [pfelk](https://raw.githubusercontent.com/pfelk/pfelk/master/pfelk-installer.sh) repository
+* `$ wget https://raw.githubusercontent.com/pfelk/pfelk/master/pfelk-installer.sh`
+* Make script executable 
+* `$ chmod +x pfelk-installer.sh`
+* Run installer script 
+* `$ ./pfelk-installer.sh`
+* Finish Configuring [here](https://github.com/pfelk/pfelk/blob/master/install/configuration.md)
+* [![YouTube](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/watch?v=qcGcsQQoPo0) Guide
 
-### 10. Install Elasticsearch|Kibana|Logstash
-```
-sudo apt-get install elasticsearch && sudo apt-get install kibana && sudo apt-get install logstash
-```
+#### manual installation method
+* [Ubuntu 18.04 / 20.04](https://github.com/pfelk/pfelk/blob/master/install/ubuntu.md)
+* [Debian 9-10.5](https://github.com/pfelk/pfelk/blob/master/install/debian.md)
+* [![YouTube](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/watch?v=_IJAAUqNVRc) Guide
 
-# Configure Kibana|v7+
+### Roadmap
+This is the experimental public roadmap for the pfelk project.
 
-### 11. Configure Kibana
-```
-sudo nano /etc/kibana/kibana.yml
-```
+[See the roadmap »](https://github.com/pfelk/pfelk/projects)
 
-### 12. Amend host file (/etc/kibana/kibana.yml)
-- server.port: 5601
-- server.host: "0.0.0.0"
+### Comparison to similar solutions
+[Comparisions »](https://github.com/pfelk/pfelk/wiki/Comparison)
 
-# Configure Logstash|v7+
+### Contributing
+Please reference to the [CONTRIBUTING file](https://github.com/pfelk/pfelk/blob/master/CONTRIBUTING.md). Collectively we can enhance and improve this product. Issues, feature requests, PRs, and documentation contributions are encouraged and welcomed!
 
-### 13. Change Directory
-```
-cd /etc/logstash/conf.d
-```
-
-### 14. Download the following configuration files
-```
-sudo wget https://raw.githubusercontent.com/a3ilson/pfelk/master/conf.d/01-inputs.conf
-```
-```
-sudo wget https://raw.githubusercontent.com/a3ilson/pfelk/master/conf.d/05-syslog.conf
-```
-```
-sudo wget https://raw.githubusercontent.com/a3ilson/pfelk/master/conf.d/10-pf.conf
-```
-```
-sudo wget https://raw.githubusercontent.com/a3ilson/pfelk/master/conf.d/11-firewall.conf
-```
-```
-sudo wget https://raw.githubusercontent.com/a3ilson/pfelk/master/conf.d/50-outputs.conf
-```
-### 14a. (Optional) Download the following configuration files
-```
-sudo wget https://raw.githubusercontent.com/a3ilson/pfelk/master/conf.d/12-suricata.conf
-```
-```
-sudo wget https://raw.githubusercontent.com/a3ilson/pfelk/master/conf.d/13-snort.conf
-```
-```
-sudo wget https://raw.githubusercontent.com/a3ilson/pfelk/master/conf.d/15-others.conf
-```
-
-
-### 15. Make Patterns Folder
-```
-sudo mkdir /etc/logstash/conf.d/patterns
-```
-
-### 16. Navigate to Patterns Folder
-```
-cd /etc/logstash/conf.d/patterns/
-```
-
-### 17. Download the following configuration file
-```
-sudo wget https://raw.githubusercontent.com/a3ilson/pfelk/master/conf.d/patterns/pf-09.2019.grok
-```
-
-### 18. Edit (05-syslog.conf)
-```
-sudo nano /etc/logstash/conf.d/05-syslog.conf
-```
-
-### 19. Revise/Update w/pf IP address (05-syslog.conf)
-```
-Change line 3; the "if [host]..." should point to your pf IP address
-Change line 9 to point to your second PF IP address or ignore
-```
-
-# Configure Services
-
-### Start Services on Boot as Services (you'll need to reboot or start manually to proceed)
-```
-sudo /bin/systemctl daemon-reload
-sudo /bin/systemctl enable elasticsearch.service
-sudo /bin/systemctl enable kibana.service
-sudo /bin/systemctl enable logstash.service
-```
-
-### Start Services Manually
-```
-systemctl start elasticsearch 
-systemctl start kibana 
-systemctl start logstash 
-```
-
-### Status
-```
-systemctl status elasticsearch.service
-systemctl status kibana.service
-systemctl status logstash.service
-```
-
-### Troubleshooting
-```/var/log/logstash
-cat/nano/vi the files within this location to view Logstash logs
-```
-If this helped, feel free to donate a drink:
-
-[![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=KA7KSUM22FW7Q&currency_code=USD&source=url)
+### License
+This project is licensed under the terms of the Apache 2.0 open source license. Please refer to [LICENSE](https://github.com/pfelk/pfelk/blob/master/license) for the full terms.
